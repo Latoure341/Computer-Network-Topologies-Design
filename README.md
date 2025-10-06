@@ -23,20 +23,39 @@ It uses VLANs for segmentation, DHCP for automatic IP assignment, and DNS for na
 ### IPv4 Addressing Table
 | Device | Interface | IP Address | Subnet Mask | VLAN |
 |---------|------------|-------------|--------------|------|
-| Router | G0/0 | 192.168.1.1 | 255.255.255.0 | - |
-| Router | G0/1 | 192.168.10.1 | 255.255.255.0 | 10 (Admin) |
-| DHCP/DNS Server | NIC0 | 192.168.1.2 | 255.255.255.0 | - |
-| PC1 | NIC0 | DHCP | - | 10 |
-| PC2 | NIC0 | DHCP | - | 10 |
+| Router | G0/0 | 192.168.1.1 | 255.255.255.224 | - |
+| Router | G0/1 | 192.168.1.2 | 255.255.255.224 | - |
+| Router | G0/0.10 | 192.168.10.1 | 255.255.255.224 | 10 (Admin) |
+| DHCP Server | NIC0 | 192.168.1.2 | 255.255.255.224 | - |
+| DNS Server | NICO | 192.168.2.2 | 255.255.255.224 | - |
+| PC0 | - | DHCP | - | - |
+| PC1 | NIC0 | 192.168.10.2 | - | 10 |
+| PC2 | - | DHCP | - | 10 |
+| PC3 | - | DHCP | - | - |
+| PC4 | NIC0 | 192.168.10.3 | - | 10 |
+| PC5 | - | DHCP | - | - |
+| PC6 | - | DHCP | - | - |
+| PC7 | - | DHCP | - | - |
+| PC8 | - | DHCP | - | - |
+| PC9 | - | DHCP | - | - |
 
 ### IPv6 Addressing Example
 | Device | Interface | IPv6 Address | Prefix |
 |---------|------------|---------------|---------|
 | Router | G0/0 | 2001:DB8:1::1 | /64 |
 | Router | G0/1 | 2001:DB8:2::1 | /64 |
+| PC0 | NIC0 | Auto (DHCP) | /64 |
 | PC1 | NIC0 | Auto (SLAAC) | /64 |
+| PC2 | NIC0 | Auto (DHCP) | /64 |
+| PC3 | NIC0 | Auto (DHCP) | /64 |
+| PC4 | NIC0 | Auto (SLAAC) | /64 |
+| PC5 | NIC0 | Auto (DHCP) | /64 |
+| PC6 | NIC0 | Auto (DHCP) | /64 |
+| PC7 | NIC0 | Auto (DHCP) | /64 |
+| PC8 | NIC0 | Auto (DHCP) | /64 |
+| PC9 | NIC0 | Auto (DHCP) | /64 |
 
-## ⚙️ Router Configuration
+## Router Configuration
 ```plaintext
 Router> enable
 Router# configure terminal
@@ -97,18 +116,18 @@ Router(dhcp-config)# exit
 ## DNS Server Setup
 | Setting | Example |
 |----------|----------|
-| Domain Name | admin.local |
+| Domain Name | ericsite |
 | Host Record | PC1 → 192.168.10.10 |
-| DNS Server IP | 192.168.1.2 |
+| DNS Server IP | 192.168.2.2 |
 ---
 
 ## 🧪 Testing and Verification
 
 | Test | Command | Expected Result |
 |------|----------|-----------------|
-| PC to Gateway | `ping 192.168.10.1` | Successful |
-| PC to Server | `ping 192.168.1.2` | Successful |
-| Inter-VLAN Routing | `ping 192.168.1.x` | Successful |
+| PC to Gateway | `ping 192.168.1.1` | Successful |
+| PC to Server | `ping 192.168.2.2` | Successful |
+| Inter-VLAN Routing | `ping 192.168.10.x` | Successful |
 | DNS Lookup | `nslookup admin.local` | Resolves IP |
 
 ---
@@ -116,14 +135,14 @@ Router(dhcp-config)# exit
 ## ⚠️ Challenges & Fixes
 | Challenge | Cause | Fix |
 |------------|--------|-----|
-| Overlapping subnets | Duplicate network on router | Assign unique /24 networks |
+| Overlapping subnets | Duplicate network on router | Assign unique /27 networks |
 | Trunk link down | VLAN mismatch | Ensure trunk allows VLAN 10 |
 | DHCP failure | Wrong default gateway | Correct DHCP default router address |
 
 
 ## ✅ Conclusion
 This project successfully demonstrated how different topologies (Bus, Star, Ring, Mesh, Extended Star) can be integrated into a single **Hybrid Network** using Cisco Packet Tracer.  
-It implemented VLAN segmentation, DHCP automation, DNS resolution, and IPv6 addressing — ensuring scalability, manageability, and redundancy.
+It implemented VLAN segmentation, DHCP automation, DNS resolution, and IPv4 & IPv6 addressing — ensuring scalability, manageability, and redundancy.
 
 ---
 ## 📦 Repository Structure
