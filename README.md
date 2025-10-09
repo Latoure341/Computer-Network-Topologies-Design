@@ -30,7 +30,7 @@ It uses VLANs for segmentation, DHCP for automatic IP assignment, and DNS for na
 | DNS Server | NICO | 192.168.2.2 | 255.255.255.224 | - |
 | PC0 | - | DHCP | - | - |
 | PC1 | NIC0 | 192.168.10.2 | - | 10 |
-| PC2 | - | DHCP | - | 10 |
+| PC2 | - | DHCP | - | - |
 | PC3 | - | DHCP | - | - |
 | PC4 | NIC0 | 192.168.10.3 | - | 10 |
 | PC5 | - | DHCP | - | - |
@@ -44,16 +44,19 @@ It uses VLANs for segmentation, DHCP for automatic IP assignment, and DNS for na
 |---------|------------|---------------|---------|
 | Router | G0/0 | 2001:DB8:1::1 | /64 |
 | Router | G0/1 | 2001:DB8:2::1 | /64 |
-| PC0 | NIC0 | Auto (DHCP) | /64 |
-| PC1 | NIC0 | Auto (SLAAC) | /64 |
+| PC0 | NIC0 | AUto (DHCP) | /64 |
+| PC1 | NIC0 | 2001:DB8:1::21 (Static) | /64 |
 | PC2 | NIC0 | Auto (DHCP) | /64 |
 | PC3 | NIC0 | Auto (DHCP) | /64 |
-| PC4 | NIC0 | Auto (SLAAC) | /64 |
+| PC4 | NIC0 | 2001:DB8:1::22 (Static) | /64 |
 | PC5 | NIC0 | Auto (DHCP) | /64 |
 | PC6 | NIC0 | Auto (DHCP) | /64 |
 | PC7 | NIC0 | Auto (DHCP) | /64 |
 | PC8 | NIC0 | Auto (DHCP) | /64 |
 | PC9 | NIC0 | Auto (DHCP) | /64 |
+The IPv6 addressing for the PCs, excluding the Admin PCs is being set up in the DHCP server.
+The pool name, which is v6 with the domain name (ericsite) and IPv6 address (2001:DB8:2::2) from 
+the DNS server, along with the address prefix (2001:DB8:1::/64) plays a role in automatically addressing PCs.
 
 ## Router Configuration
 ```plaintext
@@ -69,7 +72,7 @@ Router(config-if)# ip address 192.168.10.1 255.255.255.0
 Router(config-if)# no shutdown
 Router(config)# ipv6 unicast-routing
 Router(config)# ipv6 address 2001:DB8:1::1/64
-Router(config)# ipv6 dhcp relay destination 2001:DB8:1::2
+Router(config)# ipv6 dhcp relay destination 2001:DB8:1::1
 Router(config)# end
 Router# write memory
 ```
@@ -97,42 +100,33 @@ Switch# write memory
 
 | Setting | Value |
 |----------|--------|
-| DHCP Pool Name | VLAN10_POOL |
-| Network | 192.168.10.0 |
-| Subnet Mask | 255.255.255.0 |
-| Default Gateway | 192.168.10.1 |
-| DNS Server | 192.168.1.2 |
-| IP Range | 192.168.10.10 – 192.168.10.50 |
-
-**Example CLI (if configured on router):**
-```plaintext
-Router(config)# ip dhcp pool VLAN10_POOL
-Router(dhcp-config)# network 192.168.10.0 255.255.255.0
-Router(dhcp-config)# default-router 192.168.10.1
-Router(dhcp-config)# dns-server 192.168.1.2
-Router(dhcp-config)# exit
-```
+| DHCP Pool Name | serverPool |
+| Network | 192.168.1.0 |
+| Subnet Mask | 255.255.255.224 |
+| Default Gateway | 192.168.1.1 |
+| DNS Server | 192.168.2.2 |
+| IP Range | 192.168.1.3 – 192.168.1.30 |
 
 ## DNS Server Setup
 | Setting | Example |
 |----------|----------|
 | Domain Name | ericsite |
-| Host Record | PC1 → 192.168.10.10 |
+| Host Record | A Record |
 | DNS Server IP | 192.168.2.2 |
 ---
 
-## 🧪 Testing and Verification
+## Testing and Verification
 
 | Test | Command | Expected Result |
 |------|----------|-----------------|
 | PC to Gateway | `ping 192.168.1.1` | Successful |
 | PC to Server | `ping 192.168.2.2` | Successful |
 | Inter-VLAN Routing | `ping 192.168.10.x` | Successful |
-| DNS Lookup | `nslookup admin.local` | Resolves IP |
+| DNS Lookup | `ericsite` | Resolves IP |
 
 ---
 
-## ⚠️ Challenges & Fixes
+## Challenges & Fixes
 | Challenge | Cause | Fix |
 |------------|--------|-----|
 | Overlapping subnets | Duplicate network on router | Assign unique /27 networks |
@@ -140,12 +134,12 @@ Router(dhcp-config)# exit
 | DHCP failure | Wrong default gateway | Correct DHCP default router address |
 
 
-## ✅ Conclusion
+## Conclusion
 This project successfully demonstrated how different topologies (Bus, Star, Ring, Mesh, Extended Star) can be integrated into a single **Hybrid Network** using Cisco Packet Tracer.  
 It implemented VLAN segmentation, DHCP automation, DNS resolution, and IPv4 & IPv6 addressing — ensuring scalability, manageability, and redundancy.
 
 ---
-## 📦 Repository Structure
+##  Repository Structure
 ```plaintext
 NetworkProject/
 │
