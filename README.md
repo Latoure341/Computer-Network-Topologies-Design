@@ -54,6 +54,7 @@ It uses VLANs for segmentation, DHCP for automatic IP assignment, and DNS for na
 | PC7 | NIC0 | Auto (DHCP) | /64 |
 | PC8 | NIC0 | Auto (DHCP) | /64 |
 | PC9 | NIC0 | Auto (DHCP) | /64 |
+
 The IPv6 addressing for the PCs, excluding the Admin PCs is being set up in the DHCP server.
 The pool name, which is v6 with the domain name (ericsite) and IPv6 address (2001:DB8:2::2) from 
 the DNS server, along with the address prefix (2001:DB8:1::/64) plays a role in automatically addressing PCs.
@@ -115,6 +116,36 @@ Switch# write memory
 | DNS Server IP | 192.168.2.2 |
 ---
 
+Packet Tracer has it limitation that is why it doesn't support multicast routing commands
+at all even though real router do. So, the configuration of the multicast-routing is as
+follows, assume that it is supported:
+
+## Multicast Routing Set Up For Data Distribution
+Router Configuration to forward multicast packets
+```plaintext
+Router(config)# ip multicast-routing
+Router(config)# interface g0/0
+Router(config-if)# ip pim dense-mode
+Router(config-if)# exit
+Router(config)# interface g0/1
+Router(config-if)# ip pim dense-mode
+Router(config-if)# no shutdown
+Router(config)# end
+Router# write memory
+```
+Use a DNS server as a multicast sender and use PCS as the multicast receivers. Assign
+the same multicast group to all clients (239.1.1.1)
+
+## Verifying Multicast Routing Connectivity
+```plaintext
+Router# show ip mroute
+Router# show ip pim neighbor
+```
+Testing with the multicast address using ping:
+```plaintext
+PC> ping 239.1.1.1
+```
+
 ## Testing and Verification
 
 | Test | Command | Expected Result |
@@ -123,7 +154,6 @@ Switch# write memory
 | PC to Server | `ping 192.168.2.2` | Successful |
 | Inter-VLAN Routing | `ping 192.168.10.x` | Successful |
 | DNS Lookup | `ericsite` | Resolves IP |
-
 ---
 
 ## Challenges & Fixes
