@@ -16,7 +16,7 @@ The **HybridModel.pkt** integrates different topologies for better scalability a
 It uses VLANs for segmentation, DHCP for automatic IP assignment, and DNS for name resolution.
 
 ## Network Diagram
-
+`Screenshots`
 ---
 ## IP Addressing Scheme
 
